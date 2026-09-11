@@ -1,16 +1,35 @@
 # ProyectoIntegradorGrupo18
 Proyecto Integrador / Metodología de Sistemas II
+# Tyta 
 
+### Tranqui, yo te aviso.
 # Grupo N°18 - Integrantes
 * Arrimada, Priscila.
 * Astudillo, Tomás.
 * Guerrieri, Valentina.
 
-# Descripción del proyecto
-Nuestro proyecto busca desarrollar una herramienta de apoyo para familias y ciudadanos que tienen dificultades para organizar las distintas responsabilidades de la vida cotidiana. La propuesta busca centralizar recordatorios relacionados con documentación, vencimientos, trámites, controles y otras responsabilidades personales y civiles, ayudando al usuario no solo a recordar qué debe hacer, sino también a comprender cuándo es necesario actuar y cómo puede hacerlo.
+##  Descripción del proyecto
 
-El sistema funcionaría como un apoyo para la organización cotidiana, ofreciendo recordatorios sencillos, información orientativa y recursos que permitan al usuario resolver distintas situaciones sin tener que recordar por sí mismo todas las fechas, requisitos o pasos necesarios.
+**Tyta** es una herramienta de apoyo pensada para ayudar a personas y
+familias a organizar las distintas responsabilidades de la vida cotidiana.
 
-Como parte de la propuesta, también se contempla la incorporación de información de contacto de servicios de apoyo para determinadas situaciones. Durante las primeras etapas del proyecto, estos datos podrán ser ficticios o utilizados únicamente con fines demostrativos.
+La aplicación busca centralizar documentación, vencimientos, trámites,
+controles y otras cuestiones que pueden ser importantes para el usuario,
+ayudándolo no solo a recordar qué tiene que hacer, sino también a entender
+cuándo podría ser conveniente ocuparse de algo y cómo hacerlo.
 
-El objetivo principal es hacer más sencilla la gestión de las responsabilidades cotidianas y ayudar a las personas a mantenerse al día sin que la organización se convierta en una carga adicional.
+A partir de determinados datos proporcionados por el usuario, Tyta podrá
+sugerir cuestiones que podría ser conveniente revisar según su situación.
+Estas sugerencias no buscan determinar qué debe hacer una persona, sino
+orientarla y facilitarle el acceso a información relevante.
+
+Además, el usuario podrá crear sus propios recordatorios para cualquier
+aspecto de su vida cotidiana, aunque no esté relacionado con una obligación
+civil. De esta manera, Tyta busca ayudar a recordar tanto aquello que
+corresponde hacer como aquello que simplemente no queremos olvidar.
+
+Cuando se trate de trámites u otras gestiones, la aplicación buscará ofrecer
+una explicación sencilla de los pasos a seguir junto con la posibilidad de
+consultar la fuente oficial correspondiente.
+
+> **Tyta: Tranqui, yo te aviso.**
