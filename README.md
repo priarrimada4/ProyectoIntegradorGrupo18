@@ -1,14 +1,18 @@
-# ProyectoIntegradorGrupo18
+# Proyecto Integrador - Grupo 18
+
 Proyecto Integrador / Metodología de Sistemas II
-# Tyta 
+
+# Tyta
 
 ### Tranqui, yo te aviso.
-# Grupo N°18 - Integrantes
-* Arrimada, Priscila.
-* Astudillo, Tomás.
-* Guerrieri, Valentina.
 
-##  Descripción del proyecto
+## Grupo N°18 - Integrantes
+
+- Arrimada, Priscila.
+- Astudillo, Tomás.
+- Guerrieri, Valentina.
+
+## Descripción del proyecto
 
 **Tyta** es una herramienta de apoyo pensada para ayudar a personas y
 familias a organizar las distintas responsabilidades de la vida cotidiana.
@@ -33,3 +37,32 @@ una explicación sencilla de los pasos a seguir junto con la posibilidad de
 consultar la fuente oficial correspondiente.
 
 > **Tyta: Tranqui, yo te aviso.**
+
+## Tecnologías
+
+| Tecnología | Uso |
+|---|---|
+| **React 19** | Desarrollo de la interfaz de usuario |
+| **TypeScript 6** | Desarrollo con tipado estático |
+| **Vite 8** | Servidor de desarrollo y herramienta de build |
+| **Oxlint** | Análisis estático y linting del código |
+| **npm** | Instalación y gestión de dependencias |
+
+## Estructura del proyecto
+
+```text
+ProyectoIntegradorGrupo18/
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── App.tsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   └── main.tsx
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── vite.config.ts
+│   └── ...
+├── README.md
+└── .gitignore
