@@ -20,6 +20,22 @@ El servidor:
 
 Todavía no implementa la gestión de usuarios, recordatorios, documentación ni vencimientos.
 
+## Clases
+# Administracion
+Esta clase va a tener el metodo de pago, el plan a pagar, y el calculo de los descuentos correspondientes a cada persona. Y en caso de que sea un grupo familiar tambien va a tener la division de pagos.
+
+# Clase Tyta (a completar es el nombre de la app q te ayuda)
+
+Esta clase va a tener calendario incorporado, donde se puede marcar y desmarcar fechas. Estas fechas marcadas van a incluir una nota junto con unos avisos un par de dias antes. Tambien va a tener consejos relacionados con el tipo de nota y titulo que tengan, es decir si tienen un cumpleanos, esta app va a decir que tengan ropa apropiada lista y en caso de que se necesite o quieran. un regalo. EN UN FUTURO (podriamos agregar un sistema tipo cuestionario donde al finalizar busque locales en maps relacionados a la encuesta por ejemplo si es hombre o mujer o intereses que tenga la persona).
+
+# Persona
+La clase persona, obviamente va a tener nombre, apellido, edad, documento o gmail, Tipo de PLan(viene de la clase: Administracion (elegir nombre)).
+va a tener la posibilidad de si sos estudiante de alguna universidad asociada a esta app van a haber descuentos x mes y planes premium desbloqueados
+
+# familia
+Esta clase va a tener un array con la cantidad de integrantes de clase PERSONA. va a heredar al igual que personas el tipo plan, donde habran planes diferentes al individual, con la funcion de dividir entre esas personas el pago. 
+
+
 ## 3. Diagnóstico de diseño
 
 ### Creación directa de Express
@@ -121,3 +137,4 @@ La decisión de mantener el diseño actual es provisional y deberá revisarse si
 - Separar rutas y lógica de negocio cuando la complejidad lo justifique.
 - Incorporar pruebas para verificar las rutas.
 - Evaluar patrones según problemas concretos y comparando sus beneficios y costos.
+
