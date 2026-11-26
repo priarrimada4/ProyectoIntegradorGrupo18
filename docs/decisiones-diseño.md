@@ -179,13 +179,22 @@ La planificación contiene varios atributos y algunos son opcionales. El Builder
 
 **Verificación:**
 
-Se incorporaron pruebas para comprobar:
+-Se implementaron 11 pruebas automatizadas utilizando Vitest para comprobar el comportamiento del Builder en distintos escenarios:
+- Construcción de una planificación con todos sus datos.
+- Construcción sin presupuesto estimado.
+- Lanzamiento de un error cuando faltan datos obligatorios.
+- Rechazo de títulos compuestos únicamente por espacios.
+- Rechazo de descripciones vacías o compuestas únicamente por espacios.
+- Rechazo de fechas inválidas.
+- Rechazo de categorías no permitidas.
+- Rechazo de presupuestos negativos.
+- Aceptación de un presupuesto igual a cero.
+- Rechazo de ubicaciones compuestas únicamente por espacios.
+- Rechazo de presupuestos infinitos.
+- Todas las pruebas fueron ejecutadas correctamente: 11 de 11 aprobadas.
 
-- La construcción de una planificación con todos sus datos.
-- La construcción sin presupuesto estimado.
-- El lanzamiento de un error cuando faltan datos obligatorios.
+**Estado:** implementado y verificado mediante pruebas automatizadas.
 
-**Estado:** implementado con pruebas iniciales.
 
 ## 6. Relación con los patrones estudiados
 
@@ -248,7 +257,13 @@ El análisis inicial del servidor se basa en `backend/src/server.ts`, que permit
 
 La implementación del modelo `Planning` y su Builder se encuentra en los archivos indicados en la sección 2.2.
 
-Las pruebas iniciales verifican la construcción del objeto y algunos casos de validación.
+La implementación del modelo `Planning` y su Builder se encuentra en los archivos indicados en la sección 2.2.
+
+El comportamiento de `PlanningBuilder` se verifica mediante 11 pruebas automatizadas con Vitest, que contemplan escenarios de construcción correcta, datos opcionales, validaciones de campos obligatorios y situaciones de error. En la última ejecución, todas las pruebas fueron aprobadas.
+
+El sistema todavía no cuenta con la implementación completa de usuarios, recordatorios, documentación, vencimientos ni persistencia de planificaciones.
+
+Por lo tanto, las decisiones relacionadas con esas funcionalidades deberán revisarse cuando se desarrollen sus respectivos componentes.
 
 El sistema todavía no cuenta con la implementación completa de usuarios, recordatorios, documentación, vencimientos ni persistencia de planificaciones.
 

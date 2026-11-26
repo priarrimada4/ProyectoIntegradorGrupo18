@@ -1,6 +1,15 @@
 
 import { Planning, type PlanningCategory } from "./Planning.ts";
 
+const VALID_CATEGORIES: PlanningCategory[] = [
+  "home",
+  "travel",
+  "study",
+  "personal",
+  "family",
+  "other"
+];
+
 export class PlanningBuilder {
   private title?: string;
   private description?: string;
@@ -40,16 +49,40 @@ export class PlanningBuilder {
   }
 
   build(): Planning {
+    // Validar los datos obligatorios
     if (
-      !this.title ||
-      !this.description ||
+      !this.title?.trim() ||
+      !this.description?.trim() ||
       !this.category ||
-      !this.location ||
+      !this.location?.trim() ||
       !this.targetDate
     ) {
-      throw new Error("Faltan datos obligatorios para crear la planificación");
+      throw new Error(
+        "Faltan datos obligatorios para crear la planificación"
+      );
     }
 
+    // Validar la fecha
+    if (Number.isNaN(this.targetDate.getTime())) {
+      throw new Error("La fecha de la planificación no es válida");
+    }
+
+    // Validar la categoría
+    if (!VALID_CATEGORIES.includes(this.category)) {
+      throw new Error("La categoría de la planificación no es válida");
+    }
+
+    // Validar el presupuesto opcional
+    if (
+      this.estimatedBudget !== undefined &&
+      (!Number.isFinite(this.estimatedBudget) || this.estimatedBudget < 0)
+    ) {
+      throw new Error(
+        "El presupuesto no puede ser negativo ni inválido"
+      );
+    }
+
+    // Construir la planificación
     return new Planning(
       this.title,
       this.description,
@@ -60,3 +93,4 @@ export class PlanningBuilder {
     );
   }
 }
+
