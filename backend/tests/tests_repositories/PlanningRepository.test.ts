@@ -122,4 +122,80 @@ describe("PlanningRepository", () => {
       expect(Array.isArray(resultado)).toBe(true);
     });
   });
+
+  describe("update", () => {
+    it("debe actualizar una planificación existente", async () => {
+      const planning = new Planning(
+        "Viaje original",
+        "Descripción original",
+        "travel",
+        "Buenos Aires",
+        new Date("2026-12-15T18:30:00-03:00"),
+        150000,
+      );
+
+      const creada = await repository.create(planning);
+      idsCreados.push(creada.id);
+
+      const actualizado = new Planning(
+        "Viaje actualizado",
+        "Nueva descripción",
+        "family",
+        "Córdoba",
+        new Date("2027-01-20T10:00:00-03:00"),
+        200000,
+      );
+
+      const resultado = await repository.update(creada.id, actualizado);
+
+      expect(resultado).toBeDefined();
+      expect(resultado?.id).toBe(creada.id);
+      expect(resultado?.title).toBe("Viaje actualizado");
+      expect(resultado?.description).toBe("Nueva descripción");
+      expect(resultado?.category).toBe("family");
+      expect(resultado?.location).toBe("Córdoba");
+      expect(resultado?.targetDate).toEqual(actualizado.targetDate);
+      expect(resultado?.estimatedBudget).toBe(200000);
+    });
+
+    it("debe permitir actualizar una planificación sin presupuesto", async () => {
+      const planning = new Planning(
+        "Plan original",
+        "Descripción original",
+        "study",
+        "Bahía Blanca",
+        new Date("2026-12-15T18:30:00-03:00"),
+        100000,
+      );
+
+      const creada = await repository.create(planning);
+      idsCreados.push(creada.id);
+
+      const actualizado = new Planning(
+        "Plan sin presupuesto",
+        "Presupuesto eliminado",
+        "study",
+        "Bahía Blanca",
+        new Date("2026-12-20T10:00:00-03:00"),
+      );
+
+      const resultado = await repository.update(creada.id, actualizado);
+
+      expect(resultado?.estimatedBudget).toBeUndefined();
+    });
+
+    it("debe devolver undefined si la planificación no existe", async () => {
+      const planning = new Planning(
+        "Plan inexistente",
+        "No debe guardarse",
+        "personal",
+        "Bahía Blanca",
+        new Date("2026-12-15T18:30:00-03:00"),
+      );
+
+      const resultado = await repository.update(-1, planning);
+
+      expect(resultado).toBeUndefined();
+    });
+  });
 });
