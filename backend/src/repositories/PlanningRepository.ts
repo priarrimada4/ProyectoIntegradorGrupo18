@@ -108,4 +108,62 @@ export class PlanningRepository {
           : Number(fila.estimated_budget),
     }));
   }
+  async update(
+    id: number,
+    planning: Planning,
+  ): Promise<PlanningPersistido | undefined> {
+    const query = `
+    UPDATE plannings
+    SET
+      title = $1,
+      description = $2,
+      category = $3,
+      location = $4,
+      target_date = $5,
+      estimated_budget = $6
+    WHERE id = $7
+    RETURNING *
+  `;
+
+    const resultado = await pool.query<PlanningRow>(query, [
+      planning.title,
+      planning.description,
+      planning.category,
+      planning.location,
+      planning.targetDate,
+      planning.estimatedBudget ?? null,
+      id,
+    ]);
+
+    const fila = resultado.rows[0];
+
+    if (!fila) {
+      return undefined;
+    }
+
+    return {
+      id: fila.id,
+      title: fila.title,
+      description: fila.description,
+      category: fila.category,
+      location: fila.location,
+      targetDate: fila.target_date,
+      estimatedBudget:
+        fila.estimated_budget === null
+          ? undefined
+          : Number(fila.estimated_budget),
+    };
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const query = `
+    DELETE FROM plannings
+    WHERE id = $1
+    RETURNING id
+  `;
+
+    const resultado = await pool.query(query, [id]);
+
+    return resultado.rowCount !== null && resultado.rowCount > 0;
+  }
 }
