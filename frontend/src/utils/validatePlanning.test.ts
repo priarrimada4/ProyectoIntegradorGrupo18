@@ -73,4 +73,22 @@ describe("Validaciones de planificación", () => {
 
     expect(validatePlanning(planning)).toEqual({});
   });
+
+  it("rechaza una categoría no permitida", () => {
+    const errors = validatePlanning({
+      ...validPlanning,
+      category: "invalid" as Planning["category"]
+    });
+
+    expect(errors.category).toBeDefined();
+  });
+
+  it("rechaza un presupuesto infinito", () => {
+    const errors = validatePlanning({
+      ...validPlanning,
+      estimatedBudget: Infinity
+    });
+
+    expect(errors.estimatedBudget).toBeDefined();
+  });
 });
