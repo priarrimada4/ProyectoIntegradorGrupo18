@@ -14,3 +14,7 @@ export interface Planning {
   targetDate: string;
   estimatedBudget?: number;
 }
+
+export interface PlanningPersistido extends Planning {
+  id: number;
+}

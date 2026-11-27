@@ -1,25 +1,52 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PlanningForm from "./components/PlanningForm";
 import PlanningList from "./components/PlanningList";
-import type { Planning } from "./types/planning";
-import "./App.css";
 import PlanningCalendar from "./components/PlanningCalendar";
+import type { Planning, PlanningPersistido } from "./types/planning";
+import {
+  getPlannings,
+  createPlanning,
+  updatePlanning
+} from "./services/planningApi";
+import "./App.css";
 
 function App() {
-  const [plannings, setPlannings] = useState<Planning[]>([]);
+  const [plannings, setPlannings] = useState<PlanningPersistido[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  function handleSave(planning: Planning) {
+  useEffect(() => {
+    getPlannings()
+      .then(setPlannings)
+      .catch(() => {
+        setError("No se pudieron cargar las planificaciones.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  async function handleSave(planning: Planning) {
     if (editingIndex !== null) {
+      const currentPlanning = plannings[editingIndex];
+
+      const updated = await updatePlanning(
+        currentPlanning.id,
+        planning
+      );
+
       setPlannings((previous) =>
-        previous.map((item, index) =>
-          index === editingIndex ? planning : item
+        previous.map((item) =>
+          item.id === updated.id ? updated : item
         )
       );
 
       setEditingIndex(null);
     } else {
-      setPlannings((previous) => [...previous, planning]);
+      const created = await createPlanning(planning);
+
+      setPlannings((previous) => [...previous, created]);
     }
   }
 
@@ -52,10 +79,19 @@ function App() {
         )}
       </div>
 
-      <PlanningList
-        plannings={plannings}
-        onEdit={setEditingIndex}
-      />
+      <div>
+        {loading ? (
+          <p>Cargando planificaciones...</p>
+        ) : error ? (
+          <p role="alert">{error}</p>
+        ) : (
+          <PlanningList
+            plannings={plannings}
+            onEdit={setEditingIndex}
+          />
+        )}
+      </div>
+
       <PlanningCalendar plannings={plannings} />
     </main>
   );

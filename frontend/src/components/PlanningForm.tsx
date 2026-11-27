@@ -4,7 +4,7 @@ import type { Planning, PlanningCategory } from "../types/planning";
 import { validatePlanning } from "../utils/validatePlanning";
 
 interface PlanningFormProps {
-  onSave: (planning: Planning) => void;
+  onSave: (planning: Planning) => void | Promise<void>;
   initialPlanning?: Planning;
 }
 
@@ -28,20 +28,36 @@ function PlanningForm({
     Partial<Record<keyof Planning, string>>
   >({});
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (saving) return;
 
     const validationErrors = validatePlanning(planning);
     setErrors(validationErrors);
+    setSaveError("");
 
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
 
-    onSave(planning);
+    setSaving(true);
 
-    if (!initialPlanning) {
-      setPlanning(emptyPlanning);
+    try {
+      await onSave(planning);
+
+      if (!initialPlanning) {
+        setPlanning(emptyPlanning);
+      }
+    } catch {
+      setSaveError(
+        "No se pudo guardar la planificación. Intentá nuevamente."
+      );
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -140,8 +156,14 @@ function PlanningForm({
         <p role="alert">{errors.estimatedBudget}</p>
       )}
 
-      <button type="submit">
-        {initialPlanning ? "Guardar cambios" : "Crear planificación"}
+      {saveError && <p role="alert">{saveError}</p>}
+
+      <button type="submit" disabled={saving}>
+        {saving
+          ? "Guardando..."
+          : initialPlanning
+            ? "Guardar cambios"
+            : "Crear planificación"}
       </button>
     </form>
   );
