@@ -1,4 +1,4 @@
-import { pool } from "../src/infrastructure/database/connection.ts";
+import { pool } from "../../../src/infrastructure/database/connection.ts";
 
 try {
   const result = await pool.query(
