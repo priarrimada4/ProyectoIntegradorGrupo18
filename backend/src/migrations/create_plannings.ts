@@ -30,12 +30,13 @@ export const up = (pgm: MigrationBuilder): void => {
       notNull: false,
     },
   });
-
+  //limita las categorías permitidas.
   pgm.addConstraint("plannings", "valid_planning_category", {
     check:
       "category IN ('home', 'travel', 'study', 'personal', 'family', 'other')",
   });
 
+  //impide presupuestos negativos.
   pgm.addConstraint("plannings", "valid_estimated_budget", {
     check: "estimated_budget IS NULL OR estimated_budget >= 0",
   });
