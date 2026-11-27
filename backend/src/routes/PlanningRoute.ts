@@ -7,7 +7,7 @@ export function createPlanningRouter(
 ): ExpressRouter {
   const router = Router();
 
-  // GET /plannings
+  // GET plannings
   router.get("/", async (_req, res, next) => {
     try {
       const plannings = await service.findAll();
@@ -17,7 +17,7 @@ export function createPlanningRouter(
     }
   });
 
-  // GET /plannings/:id
+  // GET plannings/:id
   router.get("/:id", async (req, res, next) => {
     try {
       const id = Number(req.params.id);
@@ -44,7 +44,7 @@ export function createPlanningRouter(
     }
   });
 
-  // POST /plannings
+  // POST plannings
   router.post("/", async (req, res, next) => {
     try {
       const {
@@ -78,5 +78,80 @@ export function createPlanningRouter(
     }
   });
 
+  // PUT plannings/:id
+  router.put("/:id", async (req, res, next) => {
+    try {
+      const id = Number(req.params.id);
+
+      if (!Number.isInteger(id) || id <= 0) {
+        res.status(400).json({
+          error: "El ID debe ser un número entero positivo",
+        });
+        return;
+      }
+
+      const {
+        title,
+        description,
+        category,
+        location,
+        targetDate,
+        estimatedBudget,
+      } = req.body;
+
+      const planning = new PlanningBuilder()
+        .setTitle(title)
+        .setDescription(description)
+        .setCategory(category)
+        .setLocation(location)
+        .setTargetDate(new Date(targetDate))
+        .setEstimatedBudget(estimatedBudget)
+        .build();
+
+      const updated = await service.update(id, planning);
+
+      if (!updated) {
+        res.status(404).json({
+          error: "No se encontró la planificación",
+        });
+        return;
+      }
+
+      res.status(200).json(updated);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+
+      next(error);
+    }
+  });
+  // DELETE plannings/:id
+  router.delete("/:id", async (req, res, next) => {
+    try {
+      const id = Number(req.params.id);
+
+      if (!Number.isInteger(id) || id <= 0) {
+        res.status(400).json({
+          error: "El ID debe ser un número entero positivo",
+        });
+        return;
+      }
+
+      const deleted = await service.delete(id);
+
+      if (!deleted) {
+        res.status(404).json({
+          error: "No se encontró la planificación",
+        });
+        return;
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  });
   return router;
 }

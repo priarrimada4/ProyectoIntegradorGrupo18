@@ -9,6 +9,8 @@ describe("PlanningRoutes", () => {
     findAll: vi.fn(),
     findById: vi.fn(),
     create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
   };
 
   const app = express();
@@ -158,6 +160,83 @@ describe("PlanningRoutes", () => {
 
       expect(response.status).toBe(201);
       expect(response.body.estimatedBudget).toBeUndefined();
+    });
+  });
+  describe("PUT /plannings/:id", () => {
+    const planningValida = {
+      title: "Viaje actualizado",
+      description: "Viaje a Bariloche",
+      category: "travel",
+      location: "Bariloche",
+      targetDate: "2027-02-15",
+      estimatedBudget: 500000,
+    };
+
+    it("debe actualizar una planificación", async () => {
+      serviceMock.update.mockResolvedValue({
+        id: 1,
+        ...planningValida,
+        targetDate: new Date(planningValida.targetDate),
+      });
+
+      const response = await request(app)
+        .put("/plannings/1")
+        .send(planningValida);
+
+      expect(response.status).toBe(200);
+      expect(serviceMock.update).toHaveBeenCalledOnce();
+    });
+
+    it("debe devolver 400 si el ID es inválido", async () => {
+      const response = await request(app)
+        .put("/plannings/abc")
+        .send(planningValida);
+
+      expect(response.status).toBe(400);
+      expect(serviceMock.update).not.toHaveBeenCalled();
+    });
+
+    it("debe devolver 404 si la planificación no existe", async () => {
+      serviceMock.update.mockResolvedValue(undefined);
+
+      const response = await request(app)
+        .put("/plannings/999")
+        .send(planningValida);
+
+      expect(response.status).toBe(404);
+    });
+
+    it("debe devolver 400 si los datos son inválidos", async () => {
+      const response = await request(app)
+        .put("/plannings/1")
+        .send({ ...planningValida, title: "" });
+
+      expect(response.status).toBe(400);
+    });
+  });
+  describe("DELETE /plannings/:id", () => {
+    it("debe eliminar una planificación", async () => {
+      serviceMock.delete.mockResolvedValue(true);
+
+      const response = await request(app).delete("/plannings/1");
+
+      expect(response.status).toBe(204);
+      expect(serviceMock.delete).toHaveBeenCalledWith(1);
+    });
+
+    it("debe devolver 400 si el ID es inválido", async () => {
+      const response = await request(app).delete("/plannings/abc");
+
+      expect(response.status).toBe(400);
+      expect(serviceMock.delete).not.toHaveBeenCalled();
+    });
+
+    it("debe devolver 404 si la planificación no existe", async () => {
+      serviceMock.delete.mockResolvedValue(false);
+
+      const response = await request(app).delete("/plannings/999");
+
+      expect(response.status).toBe(404);
     });
   });
 });
