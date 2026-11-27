@@ -208,6 +208,76 @@ La planificación contiene varios atributos y algunos son opcionales. El Builder
 
 **Estado:** implementado y verificado mediante pruebas automatizadas.
 
+## 5.3. Incorporar PostgreSQL para la persistencia
+
+**Decisión**: utilizar PostgreSQL como sistema gestor de base de datos y Docker para administrar el entorno local de desarrollo.
+
+**Justificación**:
+
+Se necesita persistir la información de las planificaciones para que no se pierda al detener o reiniciar el backend. PostgreSQL permite almacenar los datos de forma estructurada y establecer restricciones sobre ellos.
+
+Se utiliza Docker Compose para levantar la base de datos en un entorno aislado, evitando depender de una instalación local específica.
+
+**Implementación:**
+
+Se configuró PostgreSQL 16 mediante Docker Compose.
+
+Se creó la base de datos tyta y un usuario específico para la aplicación.
+
+Se configuró el puerto 5433 del equipo anfitrión para evitar conflictos con una instancia local de PostgreSQL que utiliza el puerto 5432.
+
+Se almacenaron las credenciales y los parámetros de conexión en un archivo .env, excluido del repositorio mediante .gitignore.
+
+Se incorporó pg para realizar consultas desde el backend y dotenv para cargar las variables de entorno.
+
+Se implementó un Pool de conexiones en src/infrastructure/database/connection.ts.
+
+\*\*Estad: implementado y conexión verificada.
+
+## 5.4. Utilizar migraciones para administrar la estructura de la base de datos
+
+\*\*Decisión utilizar node-pg-migrate para gestionar la creación y modificación de las tablas mediante migraciones.
+
+**Justificación:**
+
+Las migraciones permiten mantener un registro de los cambios realizados en la estructura de la base de datos y reproducirlos en distintos entornos sin depender de modificaciones manuales.
+
+**Implementación:**
+
+Se creó la migración src/migrations/create_plannings.ts, que genera la tabla plannings con los atributos correspondientes al modelo de dominio.
+
+También se incorporaron restricciones para aceptar únicamente las categorías permitidas y evitar presupuestos negativos.
+
+La migración fue ejecutada correctamente y se verificó la creación de la tabla en PostgreSQL.
+
+\*\*Estado implementado y verificado.
+
+5.5. Incorporar el patrón Repository para el acceso a datos
+
+\*\*Decisión separar las operaciones de persistencia de la lógica del dominio mediante un repositorio.
+
+**Justificación:**
+
+El patrón Repository permite centralizar las consultas a la base de datos y evitar que el resto de la aplicación dependa directamente de PostgreSQL.
+
+**Implementación:**
+
+Se creó src/repositories/PlanningRepository.ts y se comenzó con el método create(), encargado de guardar una planificación y devolverla con el identificador generado por la base de datos.
+
+Se utilizan consultas parametrizadas para enviar los datos a PostgreSQL.
+
+La implementación se realizó siguiendo TDD, comenzando por una prueba automatizada que verifica que la planificación se guarde correctamente y que los datos devueltos coincidan con los originales.
+
+**Verificación:**
+
+Se ejecutó:
+
+_pnpm exec vitest run tests/tests_repositories/PlanningRepository.test.ts_
+
+La prueba pasó correctamente.
+
+Estado: implementación inicial realizada. Los demás métodos del repositorio y su integración con los servicios están pendientes.
+
 ## 6. Relación con los patrones estudiados
 
 ### Factory
@@ -226,11 +296,11 @@ Se incorporó para construir objetos `Planning`, debido a la cantidad de atribut
 
 ### Singleton
 
-Podría evaluarse para administrar una instancia compartida de algún recurso de infraestructura, como un cliente o conexión de base de datos.
+Se implementó un módulo compartido para administrar el Pool de conexiones a PostgreSQL. El módulo exporta una instancia que puede ser reutilizada por los componentes que necesiten acceder a la base de datos.
 
-Su incorporación dependerá de la tecnología de persistencia elegida y de la necesidad real de compartir una instancia.
+Por el momento, no se implementó explícitamente el patrón Singleton mediante una clase, ya que el módulo permite compartir la instancia sin agregar esa complejidad.
 
-**Estado:** pendiente de evaluación.
+Estado: instancia compartida de conexión implementada. Aplicación explícita del patrón Singleton no realizada.
 
 ### Facade
 
@@ -288,6 +358,8 @@ Por lo tanto, las decisiones relacionadas con esas funcionalidades deberán revi
 - Evaluar la separación entre configuración, rutas y lógica de negocio.
 - Incorporar pruebas para verificar las rutas.
 - Definir el modelo de tareas y su relación con las planificaciones.
-- Evaluar la tecnología y estrategia de persistencia.
-- Analizar la incorporación de Factory y Singleton cuando exista una necesidad concreta.
+  -Completar los métodos CRUD de PlanningRepository.
+  -Incorporar pruebas automatizadas para las operaciones de persistencia.
+  -Integrar el repositorio con los servicios correspondientes.
+  -Evaluar la incorporación de Factory y otros patrones cuando exista una necesidad concreta.
 - Actualizar este documento a medida que se implementen nuevas decisiones.
