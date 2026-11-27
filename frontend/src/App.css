@@ -137,3 +137,68 @@ article button {
   font-weight: 600;
   margin-bottom: 12px;
 }
+
+.calendar {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--surface);
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  text-transform: capitalize;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  text-align: center;
+}
+
+.calendar-day {
+  min-height: 65px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.calendar-event {
+  display: block;
+  background: #e2eee8;
+  color: var(--accent-hover);
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 5px;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+  .calendar {
+    padding: 12px;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+    padding: 4px;
+  }
+
+  .calendar-header button {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .calendar-event {
+    font-size: 10px;
+  }
+}

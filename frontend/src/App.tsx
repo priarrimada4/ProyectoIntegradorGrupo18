@@ -3,6 +3,7 @@ import PlanningForm from "./components/PlanningForm";
 import PlanningList from "./components/PlanningList";
 import type { Planning } from "./types/planning";
 import "./App.css";
+import PlanningCalendar from "./components/PlanningCalendar";
 
 function App() {
   const [plannings, setPlannings] = useState<Planning[]>([]);
@@ -55,6 +56,7 @@ function App() {
         plannings={plannings}
         onEdit={setEditingIndex}
       />
+      <PlanningCalendar plannings={plannings} />
     </main>
   );
 }
