@@ -179,7 +179,7 @@ La planificación contiene varios atributos y algunos son opcionales. El Builder
 
 **Verificación:**
 
--Se implementaron 11 pruebas automatizadas utilizando Vitest para comprobar el comportamiento del Builder en distintos escenarios:
+ Se implementaron 11 pruebas automatizadas utilizando Vitest para comprobar el comportamiento del Builder en distintos escenarios:
 - Construcción de una planificación con todos sus datos.
 - Construcción sin presupuesto estimado.
 - Lanzamiento de un error cuando faltan datos obligatorios.
@@ -257,13 +257,7 @@ El análisis inicial del servidor se basa en `backend/src/server.ts`, que permit
 
 La implementación del modelo `Planning` y su Builder se encuentra en los archivos indicados en la sección 2.2.
 
-La implementación del modelo `Planning` y su Builder se encuentra en los archivos indicados en la sección 2.2.
-
 El comportamiento de `PlanningBuilder` se verifica mediante 11 pruebas automatizadas con Vitest, que contemplan escenarios de construcción correcta, datos opcionales, validaciones de campos obligatorios y situaciones de error. En la última ejecución, todas las pruebas fueron aprobadas.
-
-El sistema todavía no cuenta con la implementación completa de usuarios, recordatorios, documentación, vencimientos ni persistencia de planificaciones.
-
-Por lo tanto, las decisiones relacionadas con esas funcionalidades deberán revisarse cuando se desarrollen sus respectivos componentes.
 
 El sistema todavía no cuenta con la implementación completa de usuarios, recordatorios, documentación, vencimientos ni persistencia de planificaciones.
 

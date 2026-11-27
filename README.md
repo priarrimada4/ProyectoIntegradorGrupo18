@@ -54,7 +54,7 @@ Entre los avances realizados se encuentran:
 - Incorporación de Vitest para pruebas automatizadas.
 - Implementación del modelo de dominio `Planning`.
 - Implementación del patrón Builder para construir objetos `Planning`.
-- Pruebas iniciales del `PlanningBuilder`.
+- 11 pruebas automatizadas del `PlanningBuilder`, que cubren construcción correcta, datos opcionales y validaciones.
 
 Las funcionalidades mencionadas en la descripción representan objetivos del proyecto y no necesariamente se encuentran implementadas todavía.
 
@@ -123,7 +123,26 @@ pnpm test
 
 ### Frontend
 
-Los comandos de instalación y ejecución se incorporarán una vez que se confirme la configuración definitiva del proyecto frontend.
+El frontend de Tyta está desarrollado con React, TypeScript y Vite.
+
+Para ejecutar la aplicación localmente, ubicarse en la carpeta `frontend` e instalar las dependencias:
+
+```bash
+cd frontend
+npm install
+```
+Una vez instaladas las dependencias, iniciar el servidor de desarrollo con:
+```bash
+npm run dev
+```
+Para verificar que el proyecto compile correctamente, ejecutar:
+```bash
+npm run build
+```
+Para analizar el código y detectar posibles errores o problemas de estilo, ejecutar:
+```bash
+npm run lint
+```
 
 ## Documentación
 
