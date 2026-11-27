@@ -1,13 +1,25 @@
 import { useState } from "react";
 import PlanningForm from "./components/PlanningForm";
+import PlanningList from "./components/PlanningList";
 import type { Planning } from "./types/planning";
 import "./App.css";
 
 function App() {
   const [plannings, setPlannings] = useState<Planning[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   function handleSave(planning: Planning) {
-    setPlannings((previous) => [...previous, planning]);
+    if (editingIndex !== null) {
+      setPlannings((previous) =>
+        previous.map((item, index) =>
+          index === editingIndex ? planning : item
+        )
+      );
+
+      setEditingIndex(null);
+    } else {
+      setPlannings((previous) => [...previous, planning]);
+    }
   }
 
   return (
@@ -17,30 +29,32 @@ function App() {
         <p>Tranqui, yo te aviso.</p>
       </header>
 
-      <PlanningForm onSave={handleSave} />
+      <div>
+        <PlanningForm
+          key={editingIndex ?? "new"}
+          onSave={handleSave}
+          initialPlanning={
+            editingIndex !== null
+              ? plannings[editingIndex]
+              : undefined
+          }
+        />
 
-      <section>
-        <h2>Mis planificaciones</h2>
-
-        {plannings.length === 0 ? (
-          <p>Todavía no tenés planificaciones.</p>
-        ) : (
-          plannings.map((planning, index) => (
-            <article key={index}>
-              <h3>{planning.title}</h3>
-              <p>{planning.description}</p>
-              <p>Categoría: {planning.category}</p>
-              <p>Ubicación: {planning.location}</p>
-              <p>Fecha: {planning.targetDate}</p>
-              <p>
-                Presupuesto: {planning.estimatedBudget !== undefined
-                  ? `$${planning.estimatedBudget.toLocaleString("es-AR")}`
-                  : "Sin definir"}
-              </p>
-            </article>
-          ))
+        {editingIndex !== null && (
+          <button
+            type="button"
+            className="cancel-button"
+            onClick={() => setEditingIndex(null)}
+          >
+            Cancelar edición
+          </button>
         )}
-      </section>
+      </div>
+
+      <PlanningList
+        plannings={plannings}
+        onEdit={setEditingIndex}
+      />
     </main>
   );
 }

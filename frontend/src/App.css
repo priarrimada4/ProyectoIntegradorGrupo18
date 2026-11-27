@@ -110,3 +110,30 @@ article p {
     padding: 20px;
   }
 }
+article button {
+  margin-top: 12px;
+}
+
+.cancel-button {
+  width: 100%;
+  margin-top: 12px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.cancel-button:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.category-label {
+  display: inline-block;
+  background: #e2eee8;
+  color: var(--accent-hover);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
