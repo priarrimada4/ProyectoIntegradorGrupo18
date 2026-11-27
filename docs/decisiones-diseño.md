@@ -406,6 +406,156 @@ Las decisiones técnicas del proyecto seguirán estos criterios:
 
 Los patrones de diseño se aplicarán para resolver problemas concretos, no solamente por formar parte de los contenidos de la materia.
 
+### 5.7. Organización del frontend mediante componentes
+
+**Decisión:** utilizar React y TypeScript, separando la interfaz en componentes según sus responsabilidades.
+
+**Justificación:**
+
+Se busca mantener una estructura sencilla, organizada y fácil de mantener, evitando concentrar todas las funcionalidades dentro de `App.tsx`.
+
+**Implementación:**
+
+Se incorporaron los siguientes componentes y archivos:
+
+- `PlanningForm.tsx`: formulario de creación y edición de planificaciones.
+- `PlanningList.tsx`: visualización de las planificaciones y sus detalles.
+- `PlanningCalendar.tsx`: visualización de las planificaciones según su fecha objetivo.
+- `planning.ts`: definición de los tipos de datos utilizados en el frontend.
+- `validatePlanning.ts`: validaciones de los datos ingresados.
+- `planningApi.ts`: comunicación con el backend.
+- `App.tsx`: administración del estado y coordinación de los componentes.
+
+**Estado:** implementado.
+
+### 5.8. Reutilización del formulario de planificaciones
+
+**Decisión:** utilizar un mismo componente para crear y editar planificaciones.
+
+**Justificación:**
+
+Ambas operaciones requieren los mismos campos y validaciones. Reutilizar el formulario permite evitar la duplicación de código y facilita su mantenimiento.
+
+**Implementación:**
+
+El componente `PlanningForm.tsx` permite ingresar los datos de una nueva planificación o cargar los datos de una planificación existente para modificarlos.
+
+También se incorporó la posibilidad de cancelar una edición.
+
+**Verificación:**
+
+Se realizaron pruebas manuales de creación, edición y cancelación, además de pruebas automatizadas sobre el comportamiento del formulario.
+
+**Estado:** implementado y verificado.
+
+### 5.9. Incorporar validaciones en el frontend
+
+**Decisión:** validar los datos ingresados por el usuario antes de enviarlos al backend.
+
+**Justificación:**
+
+Las validaciones permiten detectar datos incorrectos y mostrar mensajes al usuario sin realizar solicitudes innecesarias al servidor.
+
+Se respetaron las reglas definidas en el `PlanningBuilder` del backend, sin reemplazar sus validaciones.
+
+**Implementación:**
+
+Se creó la función `validatePlanning.ts`, encargada de verificar:
+
+- Campos obligatorios.
+- Categorías permitidas.
+- Fechas válidas.
+- Presupuestos opcionales, válidos y no negativos.
+
+Los mensajes de error se muestran en el formulario junto al campo correspondiente.
+
+**Verificación:**
+
+Se utilizó TDD para desarrollar las validaciones iniciales, comenzando con pruebas que fallaban (RED) y posteriormente implementando el código necesario para que fueran aprobadas (GREEN).
+
+Se obtuvieron 10 pruebas automatizadas aprobadas.
+
+**Estado:** implementado y verificado.
+
+### 5.10. Diseño de la interfaz y adaptación a distintas pantallas
+
+**Decisión:** utilizar CSS nativo para desarrollar la interfaz de Tyta, sin incorporar librerías adicionales de diseño.
+
+**Justificación:**
+
+Se busca ofrecer una interfaz sencilla, clara e intuitiva, manteniendo una identidad visual propia de la aplicación.
+
+**Implementación:**
+
+- Se utilizaron variables CSS para centralizar los colores y estilos.
+- Se separaron los estilos globales de los estilos propios de la aplicación.
+- Se incorporaron media queries para adaptar la interfaz a computadoras y dispositivos móviles.
+- Se muestran las categorías en español, manteniendo los valores definidos en el backend.
+- Se visualizan las fechas en formato dd/mm/aaaa, conservando el formato interno utilizado por los formularios.
+- Se incorporó un calendario para visualizar las fechas objetivo de las planificaciones.
+
+**Estado:** implementado.
+
+### 5.11. Comunicación entre frontend y backend
+
+**Decisión:** centralizar las solicitudes HTTP en un servicio independiente de los componentes visuales.
+
+**Justificación:**
+
+Separar la comunicación con la API de la interfaz permite reducir el acoplamiento, evitar la repetición de código y facilitar las pruebas.
+
+**Implementación:**
+
+Se creó `planningApi.ts`, utilizando `fetch` para realizar las siguientes operaciones:
+
+- GET: obtener las planificaciones.
+- POST: crear una planificación.
+- PUT: actualizar una planificación mediante su identificador.
+
+Se configuró un proxy de Vite para permitir la comunicación entre el frontend, ejecutado en el puerto 5173, y el backend, ejecutado en el puerto 3000, durante el desarrollo local.
+
+También se incorporaron mensajes de carga y error, y se deshabilitó el botón de guardado mientras se procesa una solicitud.
+
+En caso de que falle el guardado, el formulario conserva los datos ingresados por el usuario.
+
+**Verificación:**
+
+Se comprobó manualmente la comunicación entre el frontend, el backend y PostgreSQL, verificando que los datos permanezcan almacenados al recargar la página.
+
+**Estado:** implementado y verificado en el entorno local.
+
+### 5.12. Incorporar pruebas automatizadas y herramientas de calidad
+
+**Decisión:** utilizar Vitest, Testing Library y Oxlint para verificar el funcionamiento y revisar la calidad del código del frontend.
+
+**Justificación:**
+
+Estas herramientas permiten comprobar comportamientos de la aplicación, detectar errores y facilitar el mantenimiento del código.
+
+**Implementación:**
+
+Se desarrollaron pruebas automatizadas en los siguientes archivos:
+
+- `validatePlanning.test.ts`: 10 pruebas de validaciones.
+- `PlanningForm.test.tsx`: 3 pruebas del formulario.
+- `planningApi.test.ts`: 5 pruebas del servicio de comunicación con la API.
+
+Se seleccionaron casos normales, casos límite y situaciones de error, como la creación de planificaciones válidas, presupuestos iguales a cero, campos obligatorios vacíos y errores del servidor.
+
+También se utilizó Oxlint para detectar y corregir advertencias relacionadas con variables no utilizadas y la inicialización de la fecha del calendario.
+
+**Verificación:**
+
+Se utilizaron los siguientes comandos:
+
+- `pnpm test`: ejecución de las pruebas automatizadas.
+- `pnpm lint`: análisis de calidad del código.
+- `pnpm build`: verificación de TypeScript y compilación del frontend.
+
+Se obtuvieron 18 pruebas automatizadas aprobadas. Las pruebas del servicio de la API utilizan respuestas simuladas, por lo que pueden ejecutarse sin necesidad de iniciar el backend ni PostgreSQL.
+
+**Estado:** implementado y verificado.
+
 ## 8. Evidencia y limitaciones
 
 El análisis de la aplicación se basa en los archivos `backend/src/server.ts` y `backend/src/app.ts`, donde se separan la configuración de Express y el inicio del servidor.
@@ -422,6 +572,16 @@ Como limitación actual, el backend todavía no cuenta con la implementación co
 
 Además, parte del procesamiento de las solicitudes HTTP todavía se encuentra dentro de las rutas. Se evaluará incorporar una capa de controladores para separar más claramente las responsabilidades y facilitar el mantenimiento del código.
 
+En el **FRONTEND** se implementaron las funcionalidades de creación, consulta y edición de planificaciones, junto con un calendario que permite visualizar sus fechas objetivo.
+
+Se realizaron 18 pruebas automatizadas que verifican las validaciones, el comportamiento del formulario y la comunicación con la API mediante respuestas simuladas.
+
+También se realizaron pruebas manuales de integración con el backend y PostgreSQL.
+
+Como limitación actual, el frontend todavía no cuenta con la gestión independiente de tareas, recordatorios y vencimientos, debido a que sus modelos y servicios aún no se encuentran implementados.
+
+La configuración del proxy de Vite está destinada al entorno de desarrollo local. Su configuración para producción deberá evaluarse en futuras etapas.
+
 ## 9. Próximos pasos
 
 -Revisar la organización de las carpetas Models y domain.
@@ -433,3 +593,7 @@ Además, parte del procesamiento de las solicitudes HTTP todavía se encuentra d
 -Agregar pruebas automatizadas para las nuevas funcionalidades.
 -Evaluar la incorporación de otros patrones cuando exista una necesidad concreta.
 -Actualizar este documento a medida que se implementen nuevas decisiones.
+-Incorporar la visualización de tareas, recordatorios y vencimientos cuando estén disponibles los modelos y endpoints correspondientes.
+-Incorporar la eliminación de planificaciones desde la interfaz.
+-Ampliar las pruebas automatizadas a medida que se incorporen nuevas funcionalidades.
+-Continuar mejorando la experiencia del usuario y la comunicación con el backend.
