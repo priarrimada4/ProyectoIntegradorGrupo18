@@ -202,3 +202,30 @@ article button {
     font-size: 10px;
   }
 }
+
+.planning-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.delete-button {
+  background: transparent;
+  color: var(--error);
+  border: 1px solid var(--error);
+}
+
+.delete-button:hover:not(:disabled) {
+  background: var(--error);
+  color: white;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.delete-error {
+  color: var(--error);
+  margin-bottom: 12px;
+}

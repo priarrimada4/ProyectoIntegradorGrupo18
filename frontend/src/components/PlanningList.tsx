@@ -1,8 +1,14 @@
-import type { Planning, PlanningCategory } from "../types/planning";
+import type {
+  PlanningPersistido,
+  PlanningCategory
+} from "../types/planning";
 
 interface PlanningListProps {
-  plannings: Planning[];
+  plannings: PlanningPersistido[];
   onEdit: (index: number) => void;
+  onDelete: (id: number) => void;
+  deletingId: number | null;
+  isEditing: boolean;
 }
 
 const categoryLabels: Record<PlanningCategory, string> = {
@@ -14,7 +20,13 @@ const categoryLabels: Record<PlanningCategory, string> = {
   other: "Otros"
 };
 
-function PlanningList({ plannings, onEdit }: PlanningListProps) {
+function PlanningList({
+  plannings,
+  onEdit,
+  onDelete,
+  deletingId,
+  isEditing
+}: PlanningListProps) {
   return (
     <section>
       <h2>Mis planificaciones ({plannings.length})</h2>
@@ -23,7 +35,7 @@ function PlanningList({ plannings, onEdit }: PlanningListProps) {
         <p>Todavía no tenés planificaciones.</p>
       ) : (
         plannings.map((planning, index) => (
-          <article key={index}>
+          <article key={planning.id}>
             <span className="category-label">
               {categoryLabels[planning.category]}
             </span>
@@ -40,12 +52,26 @@ function PlanningList({ plannings, onEdit }: PlanningListProps) {
                 : "Sin definir"}
             </p>
 
-            <button
-              type="button"
-              onClick={() => onEdit(index)}
-            >
-              Editar
-            </button>
+            <div className="planning-actions">
+              <button
+                type="button"
+                disabled={deletingId !== null}
+                onClick={() => onEdit(index)}
+              >
+                Editar
+              </button>
+
+              <button
+                type="button"
+                className="delete-button"
+                disabled={deletingId !== null || isEditing}
+                onClick={() => onDelete(planning.id)}
+              >
+                {deletingId === planning.id
+                  ? "Eliminando..."
+                  : "Eliminar"}
+              </button>
+            </div>
           </article>
         ))
       )}

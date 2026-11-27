@@ -6,7 +6,8 @@ import type { Planning, PlanningPersistido } from "./types/planning";
 import {
   getPlannings,
   createPlanning,
-  updatePlanning
+  updatePlanning,
+  deletePlanning
 } from "./services/planningApi";
 import "./App.css";
 
@@ -15,6 +16,8 @@ function App() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     getPlannings()
@@ -50,6 +53,33 @@ function App() {
     }
   }
 
+  async function handleDelete(id: number) {
+    if (deletingId !== null || editingIndex !== null) return;
+
+    const confirmed = window.confirm(
+      "¿Estás seguro de que querés eliminar esta planificación?"
+    );
+
+    if (!confirmed) return;
+
+    setDeleteError("");
+    setDeletingId(id);
+
+    try {
+      await deletePlanning(id);
+
+      setPlannings((previous) =>
+        previous.filter((planning) => planning.id !== id)
+      );
+    } catch {
+      setDeleteError(
+        "No se pudo eliminar la planificación. Intentá nuevamente."
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   return (
     <main>
       <header>
@@ -80,6 +110,12 @@ function App() {
       </div>
 
       <div>
+        {deleteError && (
+          <p className="delete-error" role="alert">
+            {deleteError}
+          </p>
+        )}
+
         {loading ? (
           <p>Cargando planificaciones...</p>
         ) : error ? (
@@ -88,6 +124,9 @@ function App() {
           <PlanningList
             plannings={plannings}
             onEdit={setEditingIndex}
+            onDelete={handleDelete}
+            deletingId={deletingId}
+            isEditing={editingIndex !== null}
           />
         )}
       </div>
