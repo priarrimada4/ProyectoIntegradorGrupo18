@@ -8,6 +8,7 @@ describe("PlanningRoutes", () => {
   const serviceMock = {
     findAll: vi.fn(),
     findById: vi.fn(),
+    create: vi.fn(),
   };
 
   const app = express();
@@ -88,6 +89,75 @@ describe("PlanningRoutes", () => {
 
       expect(response.status).toBe(400);
       expect(serviceMock.findById).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("POST /plannings", () => {
+    const planningData = {
+      title: "Preparar Working Holiday",
+      description: "Organizar el viaje a Nueva Zelanda",
+      category: "travel",
+      location: "Nueva Zelanda",
+      targetDate: "2027-01-15",
+      estimatedBudget: 6000,
+    };
+
+    it("debería crear una planificación correctamente", async () => {
+      serviceMock.create.mockResolvedValue({
+        id: 1,
+        ...planningData,
+        targetDate: new Date(planningData.targetDate),
+      });
+
+      const response = await request(app).post("/plannings").send(planningData);
+
+      expect(response.status).toBe(201);
+      expect(response.body.id).toBe(1);
+      expect(response.body.title).toBe(planningData.title);
+      expect(serviceMock.create).toHaveBeenCalledOnce();
+    });
+
+    it("debería devolver 400 si faltan datos obligatorios", async () => {
+      const response = await request(app).post("/plannings").send({
+        title: "Preparar Working Holiday",
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe(
+        "Faltan datos obligatorios para crear la planificación",
+      );
+      expect(serviceMock.create).not.toHaveBeenCalled();
+    });
+
+    it("debería devolver 400 si la fecha es inválida", async () => {
+      const response = await request(app)
+        .post("/plannings")
+        .send({
+          ...planningData,
+          targetDate: "fecha incorrecta",
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe(
+        "La fecha de la planificación no es válida",
+      );
+      expect(serviceMock.create).not.toHaveBeenCalled();
+    });
+
+    it("debería permitir crear una planificación sin presupuesto", async () => {
+      const { estimatedBudget, ...dataWithoutBudget } = planningData;
+
+      serviceMock.create.mockImplementation(async (planning) => ({
+        id: 2,
+        ...planning,
+      }));
+
+      const response = await request(app)
+        .post("/plannings")
+        .send(dataWithoutBudget);
+
+      expect(response.status).toBe(201);
+      expect(response.body.estimatedBudget).toBeUndefined();
     });
   });
 });
