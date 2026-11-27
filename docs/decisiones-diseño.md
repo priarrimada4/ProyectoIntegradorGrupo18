@@ -10,20 +10,21 @@ Se distingue entre las decisiones implementadas, las adoptadas y las propuestas 
 
 ## 2. Código analizado
 
-### 2.1. Servidor inicial
+### 2.1. Servidor y aplicación
 
-Archivo: `backend/src/server.ts`
+Archivos:
 
-El servidor:
+- `backend/src/server.ts`
+- `backend/src/app.ts`
 
-- Importa Express.
-- Crea una aplicación con `express()`.
-- Define el puerto 3000.
-- Habilita el procesamiento de cuerpos JSON.
-- Declara una ruta GET `/` que devuelve un mensaje de bienvenida en JSON.
-- Inicia el servidor y muestra su dirección local.
+Inicialmente, el servidor concentraba la configuración de Express, la declaración de rutas y el inicio de la aplicación.
 
-Todavía no implementa la gestión de usuarios, recordatorios, documentación ni vencimientos.
+Posteriormente, se separaron estas responsabilidades:
+
+- `app.ts`: configura Express, habilita el procesamiento de JSON e incorpora las rutas.
+- `server.ts`: importa la aplicación y se encarga de iniciar el servidor en el puerto 3000.
+
+Esta separación permite probar la aplicación sin necesidad de iniciar un servidor real.
 
 ### 2.2. Modelo de dominio Planning
 
@@ -45,6 +46,37 @@ Actualmente contiene los siguientes atributos:
 - Presupuesto estimado opcional.
 
 Para construir este objeto se implementó un Builder que permite configurar sus atributos progresivamente y verificar que estén presentes los datos obligatorios antes de crear la instancia.
+
+### 2.3. Repositorio y servicios de Planning
+
+Archivos:
+
+- `backend/src/repositories/PlanningRepository.ts`
+- `backend/src/services/PlanningService.ts`
+
+Se incorporó el patrón Repository para separar las operaciones de persistencia de la lógica de negocio.
+
+`PlanningRepository` se encarga de realizar las consultas a PostgreSQL mediante consultas parametrizadas. Actualmente implementa las operaciones de creación, consulta, actualización y eliminación de planificaciones.
+
+También se incorporó `PlanningService`, que centraliza las operaciones relacionadas con las planificaciones y utiliza el repositorio para acceder a los datos.
+
+Esta separación permite mantener responsabilidades claras y reducir el acoplamiento entre la lógica de negocio y la base de datos.
+
+### 2.4. Rutas HTTP de Planning
+
+Archivo:
+
+- `backend/src/routes/PlanningRoute.ts`
+
+Se implementaron las rutas necesarias para realizar las operaciones CRUD de planificaciones:
+
+- GET `/plannings`: obtiene todas las planificaciones.
+- GET `/plannings/:id`: busca una planificación por identificador.
+- POST `/plannings`: crea una planificación.
+- PUT `/plannings/:id`: actualiza una planificación.
+- DELETE `/plannings/:id`: elimina una planificación.
+
+Las rutas realizan validaciones de los identificadores y de los datos recibidos, y devuelven los códigos HTTP correspondientes según el resultado de cada operación.
 
 ## 3. Diagnóstico de diseño
 
@@ -191,28 +223,28 @@ La planificación contiene varios atributos y algunos son opcionales. El Builder
 
 **Verificación:**
 
--Se implementaron 11 pruebas automatizadas utilizando Vitest para comprobar el comportamiento del Builder en distintos escenarios:
+**Verificación:**
+
+Se implementaron 11 pruebas automatizadas utilizando Vitest para comprobar el comportamiento del Builder en distintos escenarios, incluyendo:
 
 - Construcción de una planificación con todos sus datos.
 - Construcción sin presupuesto estimado.
-- Lanzamiento de un error cuando faltan datos obligatorios.
-- Rechazo de títulos compuestos únicamente por espacios.
-- Rechazo de descripciones vacías o compuestas únicamente por espacios.
+- Validación de datos obligatorios.
+- Rechazo de títulos, descripciones y ubicaciones vacías.
 - Rechazo de fechas inválidas.
 - Rechazo de categorías no permitidas.
-- Rechazo de presupuestos negativos.
+- Rechazo de presupuestos negativos o inválidos.
 - Aceptación de un presupuesto igual a cero.
-- Rechazo de ubicaciones compuestas únicamente por espacios.
-- Rechazo de presupuestos infinitos.
-- Todas las pruebas fueron ejecutadas correctamente: 11 de 11 aprobadas.
+
+Todas las pruebas fueron ejecutadas correctamente: 11 de 11 aprobadas.
 
 **Estado:** implementado y verificado mediante pruebas automatizadas.
 
 ## 5.3. Incorporar PostgreSQL para la persistencia
 
-**Decisión**: utilizar PostgreSQL como sistema gestor de base de datos y Docker para administrar el entorno local de desarrollo.
+**Decisión:** utilizar PostgreSQL como sistema gestor de base de datos y Docker para administrar el entorno local de desarrollo.
 
-**Justificación**:
+**Justificación:**
 
 Se necesita persistir la información de las planificaciones para que no se pierda al detener o reiniciar el backend. PostgreSQL permite almacenar los datos de forma estructurada y establecer restricciones sobre ellos.
 
@@ -220,19 +252,20 @@ Se utiliza Docker Compose para levantar la base de datos en un entorno aislado, 
 
 **Implementación:**
 
-Se configuró PostgreSQL 16 mediante Docker Compose.
+- Se configuró PostgreSQL 16 mediante Docker Compose.
+- Se creó la base de datos `tyta` y un usuario específico para la aplicación.
+- Se configuró el puerto 5433 del equipo anfitrión para evitar conflictos con una instancia local de PostgreSQL que utiliza el puerto 5432.
+- Se almacenaron las credenciales y los parámetros de conexión en un archivo `.env`, excluido del repositorio mediante `.gitignore`.
+- Se incorporó `pg` para realizar consultas desde el backend y `dotenv` para cargar las variables de entorno.
+- Se implementó un Pool de conexiones en `src/infrastructure/database/connection.ts`.
 
-Se creó la base de datos tyta y un usuario específico para la aplicación.
+**Verificación:**
 
-Se configuró el puerto 5433 del equipo anfitrión para evitar conflictos con una instancia local de PostgreSQL que utiliza el puerto 5432.
+Se comprobó la conexión con PostgreSQL mediante una consulta que permite obtener el nombre de la base de datos y el usuario conectado.
 
-Se almacenaron las credenciales y los parámetros de conexión en un archivo .env, excluido del repositorio mediante .gitignore.
+La conexión fue verificada correctamente utilizando la base de datos `tyta` y el usuario `tyta_user`.
 
-Se incorporó pg para realizar consultas desde el backend y dotenv para cargar las variables de entorno.
-
-Se implementó un Pool de conexiones en src/infrastructure/database/connection.ts.
-
-\*\*Estad: implementado y conexión verificada.
+**Estado:** implementado y verificado.
 
 ## 5.4. Utilizar migraciones para administrar la estructura de la base de datos
 
@@ -252,73 +285,113 @@ La migración fue ejecutada correctamente y se verificó la creación de la tabl
 
 \*\*Estado implementado y verificado.
 
-5.5. Incorporar el patrón Repository para el acceso a datos
+### 5.5. Incorporar el patrón Repository para el acceso a datos
 
-\*\*Decisión separar las operaciones de persistencia de la lógica del dominio mediante un repositorio.
+**Decisión:** separar las operaciones de persistencia de la lógica del dominio mediante un repositorio.
 
 **Justificación:**
 
-El patrón Repository permite centralizar las consultas a la base de datos y evitar que el resto de la aplicación dependa directamente de PostgreSQL.
+El patrón Repository permite centralizar las consultas a la base de datos y evitar que los servicios dependan directamente de PostgreSQL.
 
 **Implementación:**
 
-Se creó src/repositories/PlanningRepository.ts y se comenzó con el método create(), encargado de guardar una planificación y devolverla con el identificador generado por la base de datos.
+Se creó `src/repositories/PlanningRepository.ts`, encargado de realizar las operaciones de persistencia de las planificaciones.
+
+Se implementaron los siguientes métodos:
+
+- `create()`: guarda una planificación.
+- `findById()`: busca una planificación por su identificador.
+- `findAll()`: obtiene todas las planificaciones.
+- `update()`: actualiza una planificación existente.
+- `delete()`: elimina una planificación.
 
 Se utilizan consultas parametrizadas para enviar los datos a PostgreSQL.
 
-La implementación se realizó siguiendo TDD, comenzando por una prueba automatizada que verifica que la planificación se guarde correctamente y que los datos devueltos coincidan con los originales.
+La implementación se realizó mediante pruebas automatizadas utilizando Vitest.
 
 **Verificación:**
 
-Se ejecutó:
+Se ejecutaron 10 pruebas automatizadas del repositorio, que verifican las operaciones de persistencia y sus resultados.
 
-_pnpm exec vitest run tests/tests_repositories/PlanningRepository.test.ts_
+**Estado:** implementado y verificado.
 
-La prueba pasó correctamente.
+### 5.6. Incorporar una capa de servicios
 
-Estado: implementación inicial realizada. Los demás métodos del repositorio y su integración con los servicios están pendientes.
+**Decisión:** incorporar una capa de servicios para separar las operaciones del negocio del acceso a datos y de las rutas HTTP.
 
-## 6. Relación con los patrones estudiados
+**Justificación:**
 
-### Factory
+Permite centralizar las operaciones relacionadas con las planificaciones y evitar que las rutas se comuniquen directamente con el repositorio.
+
+**Implementación:**
+
+Se creó `src/services/PlanningService.ts`, que utiliza `PlanningRepository` para realizar las operaciones de creación, consulta, actualización y eliminación.
+
+**Verificación:**
+
+Se implementaron 9 pruebas automatizadas para comprobar el comportamiento de los servicios.
+
+**Estado:** implementado y verificado.
+
+Factory
 
 No se considera necesaria para la creación actual de Express, ya que no existen distintas configuraciones o tipos de aplicaciones que requieran centralizar esa decisión.
 
 Sin embargo, podría evaluarse para la creación de distintos tipos de tareas de Tyta, si cada tipo requiere una construcción o comportamiento particular.
 
-**Estado:** evaluado para Express y descartado por el momento. Posible aplicación futura en el dominio.
+Estado: evaluado para Express y descartado por el momento. Posible aplicación futura en el dominio.
 
-### Builder
+Builder
 
-Se incorporó para construir objetos `Planning`, debido a la cantidad de atributos y a la necesidad de validar los datos obligatorios antes de crear la instancia.
+Se incorporó para construir objetos Planning, debido a la cantidad de atributos y a la necesidad de validar los datos obligatorios antes de crear la instancia.
 
-**Estado:** implementado.
+Permite configurar progresivamente los atributos y centralizar las validaciones necesarias para construir una planificación válida.
 
-### Singleton
+Estado: implementado y verificado mediante pruebas automatizadas.
 
-Se implementó un módulo compartido para administrar el Pool de conexiones a PostgreSQL. El módulo exporta una instancia que puede ser reutilizada por los componentes que necesiten acceder a la base de datos.
+Singleton
+
+Se implementó un módulo compartido para administrar el Pool de conexiones a PostgreSQL. El módulo exporta una instancia que puede ser reutilizada por los componentes que necesitan acceder a la base de datos.
 
 Por el momento, no se implementó explícitamente el patrón Singleton mediante una clase, ya que el módulo permite compartir la instancia sin agregar esa complejidad.
 
 Estado: instancia compartida de conexión implementada. Aplicación explícita del patrón Singleton no realizada.
 
-### Facade
+Repository
+
+Se incorporó para separar las operaciones de persistencia de la lógica de negocio. Permite centralizar las consultas a PostgreSQL y evitar que los servicios dependan directamente de la base de datos.
+
+Se implementó PlanningRepository, que contiene los métodos necesarios para crear, consultar, actualizar y eliminar planificaciones.
+
+Estado: implementado y verificado mediante pruebas automatizadas.
+
+Service Layer
+
+Se incorporó una capa de servicios para centralizar las operaciones relacionadas con las planificaciones y coordinar la comunicación con los repositorios.
+
+Se implementó PlanningService, que utiliza PlanningRepository para realizar las operaciones correspondientes.
+
+Esta separación permite mantener las rutas HTTP independientes del acceso directo a la base de datos.
+
+Estado: implementado y verificado mediante pruebas automatizadas.
+
+Facade
 
 Podría evaluarse si una operación de Tyta necesitara coordinar varios servicios o componentes y ofrecer una interfaz sencilla para utilizarlos.
 
-**Estado:** posibilidad futura.
+Estado: posibilidad futura.
 
-### Adapter
+Adapter
 
 Podría facilitar futuras integraciones con proveedores externos, por ejemplo, servicios de notificaciones o fuentes de información.
 
-**Estado:** posibilidad futura.
+Estado: posibilidad futura.
 
-### Observer
+Observer
 
 Podría utilizarse si distintos componentes necesitaran reaccionar ante determinados eventos, como la creación o proximidad de un vencimiento.
 
-**Estado:** posibilidad futura.
+Estado: posibilidad futura.
 
 ## 7. Criterios generales de diseño
 
@@ -335,31 +408,28 @@ Los patrones de diseño se aplicarán para resolver problemas concretos, no sola
 
 ## 8. Evidencia y limitaciones
 
-El análisis inicial del servidor se basa en `backend/src/server.ts`, que permite iniciar la aplicación y responder a una solicitud GET en `/`.
+El análisis de la aplicación se basa en los archivos `backend/src/server.ts` y `backend/src/app.ts`, donde se separan la configuración de Express y el inicio del servidor.
 
-La implementación del modelo `Planning` y su Builder se encuentra en los archivos indicados en la sección 2.2.
+La implementación del modelo `Planning` y su Builder se encuentra en los archivos indicados en la sección 2.2. Su comportamiento se verifica mediante 11 pruebas automatizadas con Vitest, que contemplan escenarios de construcción correcta, datos opcionales y validaciones de los atributos.
 
-La implementación del modelo `Planning` y su Builder se encuentra en los archivos indicados en la sección 2.2.
+La persistencia se implementó mediante PostgreSQL, utilizando migraciones para administrar la estructura de la base de datos y un repositorio para realizar las operaciones sobre las planificaciones.
 
-El comportamiento de `PlanningBuilder` se verifica mediante 11 pruebas automatizadas con Vitest, que contemplan escenarios de construcción correcta, datos opcionales, validaciones de campos obligatorios y situaciones de error. En la última ejecución, todas las pruebas fueron aprobadas.
+También se incorporó una capa de servicios y se implementaron las rutas HTTP necesarias para realizar las operaciones CRUD: creación, consulta, actualización y eliminación de planificaciones.
 
-El sistema todavía no cuenta con la implementación completa de usuarios, recordatorios, documentación, vencimientos ni persistencia de planificaciones.
+Se ejecutaron pruebas automatizadas con Vitest para verificar el dominio, el repositorio, los servicios, las rutas y la conexión con la base de datos. En la última ejecución se obtuvieron 47 pruebas aprobadas.
 
-Por lo tanto, las decisiones relacionadas con esas funcionalidades deberán revisarse cuando se desarrollen sus respectivos componentes.
+Como limitación actual, el backend todavía no cuenta con la implementación completa de usuarios, recordatorios, documentación ni vencimientos. Estas funcionalidades deberán incorporarse progresivamente y sus decisiones de diseño se documentarán cuando se desarrollen.
 
-El sistema todavía no cuenta con la implementación completa de usuarios, recordatorios, documentación, vencimientos ni persistencia de planificaciones.
-
-Por lo tanto, las decisiones relacionadas con esas funcionalidades deberán revisarse cuando se desarrollen sus respectivos componentes.
+Además, parte del procesamiento de las solicitudes HTTP todavía se encuentra dentro de las rutas. Se evaluará incorporar una capa de controladores para separar más claramente las responsabilidades y facilitar el mantenimiento del código.
 
 ## 9. Próximos pasos
 
-- Mantener funcional el inicio del servidor.
-- Definir las primeras responsabilidades del backend.
-- Evaluar la separación entre configuración, rutas y lógica de negocio.
-- Incorporar pruebas para verificar las rutas.
-- Definir el modelo de tareas y su relación con las planificaciones.
-  -Completar los métodos CRUD de PlanningRepository.
-  -Incorporar pruebas automatizadas para las operaciones de persistencia.
-  -Integrar el repositorio con los servicios correspondientes.
-  -Evaluar la incorporación de Factory y otros patrones cuando exista una necesidad concreta.
-- Actualizar este documento a medida que se implementen nuevas decisiones.
+-Revisar la organización de las carpetas Models y domain.
+-Evaluar qué entidades y tipos adicionales necesita el dominio.
+-Incorporar una capa de controladores para separar el procesamiento HTTP de las rutas.
+-Revisar y mejorar el manejo de errores.
+-Definir el modelo de tareas y su relación con las planificaciones.
+-Incorporar progresivamente usuarios, documentación, recordatorios y vencimientos.
+-Agregar pruebas automatizadas para las nuevas funcionalidades.
+-Evaluar la incorporación de otros patrones cuando exista una necesidad concreta.
+-Actualizar este documento a medida que se implementen nuevas decisiones.

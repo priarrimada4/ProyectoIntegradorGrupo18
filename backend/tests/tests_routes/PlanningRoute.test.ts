@@ -8,6 +8,9 @@ describe("PlanningRoutes", () => {
   const serviceMock = {
     findAll: vi.fn(),
     findById: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
   };
 
   const app = express();
@@ -88,6 +91,152 @@ describe("PlanningRoutes", () => {
 
       expect(response.status).toBe(400);
       expect(serviceMock.findById).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("POST /plannings", () => {
+    const planningData = {
+      title: "Preparar Working Holiday",
+      description: "Organizar el viaje a Nueva Zelanda",
+      category: "travel",
+      location: "Nueva Zelanda",
+      targetDate: "2027-01-15",
+      estimatedBudget: 6000,
+    };
+
+    it("debería crear una planificación correctamente", async () => {
+      serviceMock.create.mockResolvedValue({
+        id: 1,
+        ...planningData,
+        targetDate: new Date(planningData.targetDate),
+      });
+
+      const response = await request(app).post("/plannings").send(planningData);
+
+      expect(response.status).toBe(201);
+      expect(response.body.id).toBe(1);
+      expect(response.body.title).toBe(planningData.title);
+      expect(serviceMock.create).toHaveBeenCalledOnce();
+    });
+
+    it("debería devolver 400 si faltan datos obligatorios", async () => {
+      const response = await request(app).post("/plannings").send({
+        title: "Preparar Working Holiday",
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe(
+        "Faltan datos obligatorios para crear la planificación",
+      );
+      expect(serviceMock.create).not.toHaveBeenCalled();
+    });
+
+    it("debería devolver 400 si la fecha es inválida", async () => {
+      const response = await request(app)
+        .post("/plannings")
+        .send({
+          ...planningData,
+          targetDate: "fecha incorrecta",
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe(
+        "La fecha de la planificación no es válida",
+      );
+      expect(serviceMock.create).not.toHaveBeenCalled();
+    });
+
+    it("debería permitir crear una planificación sin presupuesto", async () => {
+      const { estimatedBudget, ...dataWithoutBudget } = planningData;
+
+      serviceMock.create.mockImplementation(async (planning) => ({
+        id: 2,
+        ...planning,
+      }));
+
+      const response = await request(app)
+        .post("/plannings")
+        .send(dataWithoutBudget);
+
+      expect(response.status).toBe(201);
+      expect(response.body.estimatedBudget).toBeUndefined();
+    });
+  });
+  describe("PUT /plannings/:id", () => {
+    const planningValida = {
+      title: "Viaje actualizado",
+      description: "Viaje a Bariloche",
+      category: "travel",
+      location: "Bariloche",
+      targetDate: "2027-02-15",
+      estimatedBudget: 500000,
+    };
+
+    it("debe actualizar una planificación", async () => {
+      serviceMock.update.mockResolvedValue({
+        id: 1,
+        ...planningValida,
+        targetDate: new Date(planningValida.targetDate),
+      });
+
+      const response = await request(app)
+        .put("/plannings/1")
+        .send(planningValida);
+
+      expect(response.status).toBe(200);
+      expect(serviceMock.update).toHaveBeenCalledOnce();
+    });
+
+    it("debe devolver 400 si el ID es inválido", async () => {
+      const response = await request(app)
+        .put("/plannings/abc")
+        .send(planningValida);
+
+      expect(response.status).toBe(400);
+      expect(serviceMock.update).not.toHaveBeenCalled();
+    });
+
+    it("debe devolver 404 si la planificación no existe", async () => {
+      serviceMock.update.mockResolvedValue(undefined);
+
+      const response = await request(app)
+        .put("/plannings/999")
+        .send(planningValida);
+
+      expect(response.status).toBe(404);
+    });
+
+    it("debe devolver 400 si los datos son inválidos", async () => {
+      const response = await request(app)
+        .put("/plannings/1")
+        .send({ ...planningValida, title: "" });
+
+      expect(response.status).toBe(400);
+    });
+  });
+  describe("DELETE /plannings/:id", () => {
+    it("debe eliminar una planificación", async () => {
+      serviceMock.delete.mockResolvedValue(true);
+
+      const response = await request(app).delete("/plannings/1");
+
+      expect(response.status).toBe(204);
+      expect(serviceMock.delete).toHaveBeenCalledWith(1);
+    });
+
+    it("debe devolver 400 si el ID es inválido", async () => {
+      const response = await request(app).delete("/plannings/abc");
+
+      expect(response.status).toBe(400);
+      expect(serviceMock.delete).not.toHaveBeenCalled();
+    });
+
+    it("debe devolver 404 si la planificación no existe", async () => {
+      serviceMock.delete.mockResolvedValue(false);
+
+      const response = await request(app).delete("/plannings/999");
+
+      expect(response.status).toBe(404);
     });
   });
 });

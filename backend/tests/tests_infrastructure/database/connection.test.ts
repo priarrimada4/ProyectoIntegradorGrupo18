@@ -1,13 +1,14 @@
+import { describe, it, expect } from "vitest";
 import { pool } from "../../../src/infrastructure/database/connection.ts";
 
-try {
-  const result = await pool.query(
-    "SELECT current_database() AS database, current_user AS usuario",
-  );
+describe("Database Connection", () => {
+  it("debe conectarse correctamente a PostgreSQL", async () => {
+    const result = await pool.query(
+      "SELECT current_database() AS database, current_user AS usuario",
+    );
 
-  console.log("Conexión exitosa:", result.rows[0]);
-} catch (error) {
-  console.error("Error de conexión:", error);
-} finally {
-  await pool.end();
-}
+    expect(result.rows.length).toBe(1);
+    expect(result.rows[0].database).toBe("tyta");
+    expect(result.rows[0].usuario).toBe("tyta_user");
+  });
+});
