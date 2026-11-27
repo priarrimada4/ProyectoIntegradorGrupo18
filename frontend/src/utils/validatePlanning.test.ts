@@ -69,7 +69,7 @@ describe("Validaciones de planificación", () => {
   });
 
   it("acepta una planificación sin presupuesto", () => {
-    const { estimatedBudget, ...planning } = validPlanning;
+    const { estimatedBudget: _estimatedBudget, ...planning } = validPlanning;
 
     expect(validatePlanning(planning)).toEqual({});
   });

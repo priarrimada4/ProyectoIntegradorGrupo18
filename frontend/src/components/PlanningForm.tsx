@@ -124,7 +124,7 @@ function PlanningForm({
         step="any"
         value={planning.estimatedBudget ?? ""}
         onChange={(e) => {
-          const { estimatedBudget, ...rest } = planning;
+          const { estimatedBudget: _estimatedBudget, ...rest } = planning;
 
           setPlanning(
             e.target.value === ""
