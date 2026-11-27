@@ -154,4 +154,16 @@ export class PlanningRepository {
           : Number(fila.estimated_budget),
     };
   }
+
+  async delete(id: number): Promise<boolean> {
+    const query = `
+    DELETE FROM plannings
+    WHERE id = $1
+    RETURNING id
+  `;
+
+    const resultado = await pool.query(query, [id]);
+
+    return resultado.rowCount !== null && resultado.rowCount > 0;
+  }
 }
