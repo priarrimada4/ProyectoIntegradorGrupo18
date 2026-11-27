@@ -57,4 +57,55 @@ export class PlanningRepository {
           : Number(fila.estimated_budget),
     };
   }
+  async findById(id: number): Promise<PlanningPersistido | undefined> {
+    const query = `
+      SELECT *
+      FROM plannings
+      WHERE id = $1
+    `;
+
+    const resultado = await pool.query<PlanningRow>(query, [id]);
+
+    const fila = resultado.rows[0];
+
+    if (!fila) {
+      return undefined;
+    }
+
+    return {
+      id: fila.id,
+      title: fila.title,
+      description: fila.description,
+      category: fila.category,
+      location: fila.location,
+      targetDate: fila.target_date,
+      estimatedBudget:
+        fila.estimated_budget === null
+          ? undefined
+          : Number(fila.estimated_budget),
+    };
+  }
+
+  async findAll(): Promise<PlanningPersistido[]> {
+    const query = `
+    SELECT *
+    FROM plannings
+    ORDER BY id ASC
+  `;
+
+    const resultado = await pool.query<PlanningRow>(query);
+
+    return resultado.rows.map((fila) => ({
+      id: fila.id,
+      title: fila.title,
+      description: fila.description,
+      category: fila.category,
+      location: fila.location,
+      targetDate: fila.target_date,
+      estimatedBudget:
+        fila.estimated_budget === null
+          ? undefined
+          : Number(fila.estimated_budget),
+    }));
+  }
 }
