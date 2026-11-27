@@ -198,4 +198,32 @@ describe("PlanningRepository", () => {
       expect(resultado).toBeUndefined();
     });
   });
+
+  describe("delete", () => {
+    it("debe eliminar una planificación existente", async () => {
+      const planning = new Planning(
+        "Plan para eliminar",
+        "Planificación de prueba",
+        "personal",
+        "Bahía Blanca",
+        new Date("2026-12-15T18:30:00-03:00"),
+      );
+
+      const creada = await repository.create(planning);
+      idsCreados.push(creada.id);
+
+      const resultado = await repository.delete(creada.id);
+
+      expect(resultado).toBe(true);
+
+      const eliminada = await repository.findById(creada.id);
+      expect(eliminada).toBeUndefined();
+    });
+
+    it("debe devolver false si la planificación no existe", async () => {
+      const resultado = await repository.delete(-1);
+
+      expect(resultado).toBe(false);
+    });
+  });
 });
