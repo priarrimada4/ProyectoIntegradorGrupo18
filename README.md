@@ -46,76 +46,158 @@ El proyecto busca evolucionar progresivamente desde la organización personal ha
 
 ## Estado de desarrollo
 
-Actualmente, el proyecto se encuentra en una etapa inicial de desarrollo.
+## Estado de desarrollo
+
+Actualmente, el proyecto cuenta con una primera versión funcional para la gestión de planificaciones.
 
 Entre los avances realizados se encuentran:
 
-- Configuración inicial del backend con Node.js, Express y TypeScript.
-- Incorporación de Vitest para pruebas automatizadas.
-- Implementación del modelo de dominio `Planning`.
-- Implementación del patrón Builder para construir objetos `Planning`.
-- Pruebas iniciales del `PlanningBuilder`.
+- Implementación del modelo de dominio `Planning` y del patrón Builder.
+- Persistencia de datos mediante PostgreSQL y Docker.
+- Implementación del repositorio, los servicios y las rutas del backend.
+- Interfaz para crear, consultar y editar planificaciones.
+- Selector de categorías.
+- Validaciones de formularios y mensajes de error.
+- Calendario para visualizar las fechas objetivo.
+- Diseño adaptable a distintos tamaños de pantalla.
+- Integración entre frontend y backend.
+- Pruebas automatizadas y revisión de calidad del código.
 
-Las funcionalidades mencionadas en la descripción representan objetivos del proyecto y no necesariamente se encuentran implementadas todavía.
+La gestión independiente de tareas, recordatorios y vencimientos se contempla para futuras etapas del desarrollo.
 
 ## Tecnologías
 
 | Área | Tecnología |
-|---|---|
-| Frontend | React, TypeScript, Vite |
-| Backend | Node.js, Express, TypeScript |
-| Gestor de paquetes del backend | pnpm |
-| Testing backend | Vitest |
+
+| Frontend | React, TypeScript, Vite y CSS |
+| Backend | Node.js, Express y TypeScript |
+| Base de datos | PostgreSQL 16 |
+| Entorno de base de datos | Docker Compose |
+| Migraciones | node-pg-migrate |
+| Gestor de paquetes | pnpm |
+| Testing backend | Vitest y Supertest |
+| Testing frontend | Vitest y Testing Library |
+| Calidad del código frontend | Oxlint |
 | Control de versiones | Git y GitHub |
 
-La tecnología de persistencia de datos se definirá durante el desarrollo.
-
-## Estructura del proyecto
-
-El repositorio se organiza en dos aplicaciones principales:
-
-```text
 ProyectoIntegradorGrupo18/
 ├── backend/
 │   ├── src/
 │   │   ├── domain/
-│   │   │   └── planning/
-│   │   │       ├── Planning.ts
-│   │   │       ├── PlanningBuilder.ts
-│   │   │       └── PlanningBuilder.test.ts
+│   │   ├── infrastructure/
+│   │   ├── migrations/
+│   │   ├── repositories/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── app.ts
 │   │   └── server.ts
-│   ├── package.json
-│   ├── pnpm-lock.yaml
-│   └── tsconfig.json
+│   └── package.json
 │
 ├── frontend/
-│   └── ...
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── PlanningForm.tsx
+│   │   │   ├── PlanningForm.test.tsx
+│   │   │   ├── PlanningList.tsx
+│   │   │   └── PlanningCalendar.tsx
+│   │   ├── services/
+│   │   │   ├── planningApi.ts
+│   │   │   └── planningApi.test.ts
+│   │   ├── types/
+│   │   │   └── planning.ts
+│   │   ├── utils/
+│   │   │   ├── validatePlanning.ts
+│   │   │   └── validatePlanning.test.ts
+│   │   ├── App.tsx
+│   │   ├── App.css
+│   │   └── index.css
+│   ├── vite.config.ts
+│   └── package.json
 │
 ├── docs/
 │   └── decisiones-diseño.md
-│
+├── compose.yaml
 └── README.md
-```
-
-La estructura se irá ampliando a medida que se incorporen nuevas funcionalidades y componentes.
 
 ## Instalación y ejecución
 
+### Requisitos previos
+
+- Node.js.
+- pnpm.
+- Docker Desktop.
+
+### Base de datos
+
+Crear un archivo `.env` en la raíz del proyecto con las variables de entorno necesarias para la conexión a PostgreSQL.
+
+Este archivo se encuentra excluido del repositorio mediante `.gitignore` para proteger las credenciales.
+
+Con Docker Desktop iniciado, ejecutar desde la raíz del proyecto:
+
+```bash
+docker compose up -d
+```
+
+Para comprobar el estado del contenedor:
+
+```bash
+docker compose ps
+```
+
 ### Backend
 
-Desde la carpeta `backend`:
+Desde la carpeta `backend`, instalar las dependencias:
 
 ```bash
 pnpm install
 ```
 
-Para iniciar el servidor en desarrollo:
+Ejecutar las migraciones para crear las tablas de la base de datos:
+
+```bash
+pnpm exec node-pg-migrate up --migrations-dir src/migrations --envPath ../.env
+```
+
+Iniciar el servidor:
 
 ```bash
 pnpm dev
 ```
 
-Para ejecutar las pruebas:
+En caso de incompatibilidad con la sintaxis de TypeScript en el modo strip-types, ejecutar:
+
+```bash
+node --experimental-transform-types src/server.ts
+```
+
+El backend estará disponible en `http://localhost:3000`.
+
+### Frontend
+
+Desde una segunda terminal, ingresar a la carpeta `frontend` e instalar las dependencias:
+
+```bash
+pnpm install
+```
+
+Iniciar la aplicación:
+
+```bash
+pnpm dev
+```
+
+El frontend estará disponible normalmente en `http://localhost:5173`.
+
+Para utilizar todas las funcionalidades de la aplicación es necesario mantener PostgreSQL, el backend y el frontend en funcionamiento.
+
+La comunicación entre frontend y backend se realiza mediante un proxy configurado en Vite para el entorno de desarrollo local.
+
+## Pruebas automatizadas y calidad del código
+
+### Backend
+
+Desde la carpeta `backend`:
 
 ```bash
 pnpm test
@@ -123,14 +205,33 @@ pnpm test
 
 ### Frontend
 
-Los comandos de instalación y ejecución se incorporarán una vez que se confirme la configuración definitiva del proyecto frontend.
+Desde la carpeta `frontend`:
 
-## Documentación
+```bash
+pnpm test
+```
 
-En la carpeta `docs` se registran las decisiones de diseño y los criterios técnicos que orientan el desarrollo del proyecto.
+Se implementaron 18 pruebas automatizadas, distribuidas de la siguiente manera:
 
-## Metodología de trabajo
+| Archivo | Cantidad de pruebas |
+|---|---:|
+| validatePlanning.test.ts | 10 |
+| PlanningForm.test.tsx | 3 |
+| planningApi.test.ts | 5 |
+| Total | 18 |
 
-El desarrollo se organiza mediante Git y GitHub, utilizando ramas de trabajo individuales y solicitudes de integración (*Pull Requests*) para incorporar cambios a la rama principal de desarrollo.
+Las pruebas contemplan casos normales, casos límite y situaciones de error.
 
-Las decisiones relevantes y los avances técnicos se documentan para facilitar la coordinación entre los integrantes del equipo.
+Para analizar la calidad del código del frontend:
+
+```bash
+pnpm lint
+```
+
+Para verificar TypeScript y compilar la aplicación:
+
+```bash
+pnpm build
+```
+
+Las pruebas automatizadas del frontend pueden ejecutarse sin iniciar el backend ni la base de datos, ya que las solicitudes HTTP se simulan durante las pruebas del servicio.
