@@ -46,8 +46,6 @@ El proyecto busca evolucionar progresivamente desde la organización personal ha
 
 ## Estado de desarrollo
 
-## Estado de desarrollo
-
 Actualmente, el proyecto cuenta con una primera versión funcional para la gestión de planificaciones.
 
 Entre los avances realizados se encuentran:
@@ -79,6 +77,8 @@ La gestión independiente de tareas, recordatorios y vencimientos se contempla p
 | Testing frontend | Vitest y Testing Library |
 | Calidad del código frontend | Oxlint |
 | Control de versiones | Git y GitHub |
+
+## Estructura del proyecto
 
 ProyectoIntegradorGrupo18/
 ├── backend/

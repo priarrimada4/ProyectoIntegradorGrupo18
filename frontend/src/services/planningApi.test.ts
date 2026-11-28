@@ -2,7 +2,8 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   getPlannings,
   createPlanning,
-  updatePlanning
+  updatePlanning,
+  deletePlanning
 } from "./planningApi";
 import type { Planning } from "../types/planning";
 
@@ -110,5 +111,32 @@ describe("Servicio API de planificaciones", () => {
     );
 
     expect(await getPlannings()).toEqual([savedPlanning]);
+  });
+
+  it("elimina una planificación por su id", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(null, { status: 204 })
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await deletePlanning(1);
+
+    expect(fetchMock).toHaveBeenCalledWith("/plannings/1", {
+      method: "DELETE"
+    });
+  });
+
+  it("maneja un error al eliminar una planificación", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(null, { status: 500 })
+      )
+    );
+
+    await expect(deletePlanning(1)).rejects.toThrow(
+      "No se pudo eliminar la planificación"
+    );
   });
 });
